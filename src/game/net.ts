@@ -3,7 +3,7 @@
   客の在庫と、ドラッグ中の客神は上書きしない。休止と武器選びは主催だけ。
   札の効果は主催の buyItem だけ。ack の id を変えるな。
 */
-import { GUEST_KINDS, isGuest, ITEMS } from "./data";
+import { GUEST_KINDS, emptyItemT, isGuest, ITEMS } from "./data";
 import { moveOwnedGuest, placeGuestFromPeer } from "./guests";
 import { buyItem } from "./items";
 import type { Ball, Game, GuestStock, Hero, HeroId, ItemId, Mode, Projectile } from "./types";
@@ -25,6 +25,7 @@ export type Snap = {
   boss: Game["boss"];
   projectiles: Projectile[];
   itemT: Game["itemT"];
+  itemBuys: Game["itemBuys"];
   flashBanner: string | null;
   flashT: number;
 };
@@ -56,6 +57,7 @@ export function packSnap(g: Game): Snap {
     boss: { ...g.boss },
     projectiles: g.projectiles.slice(0, 24).map((p) => ({ ...p })),
     itemT: { ...g.itemT },
+    itemBuys: { ...g.itemBuys },
     flashBanner: g.flashBanner,
     flashT: g.flashT,
   };
@@ -82,6 +84,7 @@ export function applySnap(g: Game, s: Snap, dragHeroId?: number) {
   g.boss = s.boss;
   g.projectiles = s.projectiles;
   g.itemT = s.itemT;
+  g.itemBuys = s.itemBuys ?? emptyItemT();
   g.flashBanner = s.flashBanner;
   g.flashT = s.flashT;
   if (drag && dragHeroId != null && g.slots[drag.slot]?.id === dragHeroId) g.drag = drag;

@@ -3,7 +3,7 @@
   効いているあいだの倍率は sim が itemT を読む。HP 減算は hurtBall だけ。
   タイトルの店には置かない。Canvas には描かない。
 */
-import { ITEMS, slotXY } from "./data";
+import { ITEMS, itemPrice, slotXY } from "./data";
 import * as audio from "./audio";
 import { burst, firstEmpty, float, hurtBall, recomputePower, seedHero } from "./sim";
 import type { Game, ItemId } from "./types";
@@ -76,8 +76,10 @@ export function buyItem(g: Game, id: ItemId, owner?: string): boolean {
     g.flashT = 0.7;
     return false;
   }
-  if (g.coins < def.price) return false;
-  g.coins -= def.price;
+  const price = itemPrice(def.price, g.itemBuys[id] ?? 0);
+  if (g.coins < price) return false;
+  g.coins -= price;
+  g.itemBuys[id] = (g.itemBuys[id] ?? 0) + 1;
   g.itemT[id] = def.sec;
   ITEM_FX[id].onBuy?.(g, owner);
   g.flashBanner = def.name;

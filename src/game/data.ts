@@ -731,6 +731,12 @@ export const ITEMS: ItemDef[] = [
   { id: "maneki", name: "招き", sec: 20, price: 35, blurb: "壊すと追加召喚" },
 ];
 
+/** 同じ札をこの挑戦で買った回数。0 が初回。次は元値の半分を足す。別の札と次の挑戦には持たない。 */
+export function itemPrice(base: number, bought: number): number {
+  const n = Math.max(0, Math.floor(bought));
+  return Math.ceil(base * (1 + 0.5 * n));
+}
+
 export const SUZU_MUL = 1.9;
 export const SEIJAKU_MUL = 3;
 export const SHIGURE_MUL = 1.7;

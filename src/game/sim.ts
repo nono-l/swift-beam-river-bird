@@ -376,6 +376,7 @@ export function createGame(opts?: { demo?: boolean; muted?: boolean; debug?: boo
     itemTap: loadItemTap(),
     assist: false,
     itemT: emptyItemT(),
+    itemBuys: emptyItemT(),
     shop: meta.shop,
     lastEarned: 0,
     weaponOptions: [],

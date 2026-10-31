@@ -1,20 +1,48 @@
 /*
-  効果音。当たり判定はしない。
+  効果音と、タイトルからゲームまで続く主題歌。
+  画面が変わっても曲は止めない。消音のときだけ音量をゼロにする。
 */
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
 let sfx: GainNode | null = null;
 let muted = false;
+let theme: HTMLAudioElement | null = null;
+
+const THEME_URL = "/assets/theme.m4a";
+const THEME_VOL = 0.55;
+
+function ensureTheme(): HTMLAudioElement {
+  if (theme) return theme;
+  const el = new Audio(THEME_URL);
+  el.loop = true;
+  el.preload = "auto";
+  el.volume = muted ? 0 : THEME_VOL;
+  el.addEventListener("ended", () => {
+    el.currentTime = 0;
+    if (!muted) void el.play().catch(() => {});
+  });
+  theme = el;
+  return el;
+}
 
 export function setMuted(v: boolean) {
   muted = v;
   if (master && ctx) {
     master.gain.setTargetAtTime(v ? 0 : 1, ctx.currentTime, 0.02);
   }
+  if (theme) theme.volume = v ? 0 : THEME_VOL;
 }
 
-export function isMuted() {
-  return muted;
+export function themeTime(): number {
+  if (!theme || theme.paused) return -1;
+  return theme.currentTime;
+}
+
+export function startTheme() {
+  const el = ensureTheme();
+  el.volume = muted ? 0 : THEME_VOL;
+  if (!el.paused) return;
+  void el.play().catch(() => {});
 }
 
 export function unlockAudio() {
@@ -29,6 +57,7 @@ export function unlockAudio() {
     master.gain.value = muted ? 0 : 1;
   }
   if (ctx.state === "suspended") void ctx.resume();
+  startTheme();
 }
 
 function envGain(dur: number, peak: number) {

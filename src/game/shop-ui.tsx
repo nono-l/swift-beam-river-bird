@@ -230,8 +230,7 @@ export function GuestRow({ g, id, onChange }: { g: Game; id: HeroId; onChange: (
       <img src={`/assets/${id}.png`} alt="" width={48} height={48} className="guest-face" />
       <div className="shop-copy">
         <div className="nm">{hero.name}</div>
-        <div className="lv">在庫 {n} / {kind.max}　客神札 {slips}</div>
-        <div className="st">挑戦中にこの顔を選んで空マスへ置く。ランごとにこの在庫まで。</div>
+        <div className="lv">在庫 {n}/{kind.max}　札 {slips}</div>
       </div>
       <button
         type="button"

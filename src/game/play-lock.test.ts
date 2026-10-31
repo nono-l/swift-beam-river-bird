@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { HEROES, START_COINS, slotXY, swingLen, swingTipR } from "./data.ts";
+import { HEROES, START_COINS, itemPrice, slotXY, swingLen, swingTipR } from "./data.ts";
 import { onPointerUp } from "./input.ts";
 import { buyItem } from "./items.ts";
 import { chooseBuff, chooseWeapon } from "./picks.ts";
@@ -51,6 +51,12 @@ describe("play lock", () => {
     assert.equal(g.stack[0]!.hp, 1);
     assert.equal(buyItem(g, "ware"), false);
     assert.equal(g.coins, before - 25);
+    g.itemT.ware = 0;
+    g.coins = 200;
+    assert.equal(itemPrice(25, 1), 38);
+    assert.equal(buyItem(g, "ware"), true);
+    assert.equal(g.coins, 200 - 38);
+    assert.equal(g.itemBuys.ware, 2);
   });
 
   it("does not merge guest gods", () => {

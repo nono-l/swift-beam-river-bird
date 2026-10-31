@@ -268,4 +268,6 @@ export interface Game {
   /** 札の押し方。未設定は効果を見てから使う。 */
   itemTap: ItemTap;
   itemT: Record<ItemId, number>;
+  /** この挑戦で、その札を買った回数。次の挑戦では 0。 */
+  itemBuys: Record<ItemId, number>;
 }

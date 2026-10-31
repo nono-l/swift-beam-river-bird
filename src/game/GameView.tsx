@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { UserButton } from "@/lib/auth/gates";
 import { useCurrentUserState } from "@/lib/auth/use-current-user";
 import { loadCloudSave, putCloudSave } from "@/server/saves";
-import { GUEST_HINT, GUEST_KINDS, HEROES, guestLine, VH, VW, shopT1Maxed, shopT3Open, shopT4Open, hitMarkBadge, isGuest, ITEMS } from "./data";
+import { GUEST_HINT, GUEST_KINDS, HEROES, guestLine, VH, VW, shopT1Maxed, shopT3Open, shopT4Open, hitMarkBadge, isGuest, ITEMS, itemPrice } from "./data";
 import { BUILD_STAMP } from "./build-stamp";
 import { DebugDock, HeroCard, SettingsPanel } from "./DebugPanel";
 import { GachaPanel } from "./gacha-ui";
@@ -217,6 +217,7 @@ export function GameView() {
         }
       } else {
         audio.resumeIfNeeded();
+        audio.startTheme();
       }
     };
     const onKey = (e: KeyboardEvent) => {
@@ -230,11 +231,14 @@ export function GameView() {
     window.addEventListener("keydown", onKey);
     window.addEventListener("resize", fit);
 
+    const kick = () => audio.unlockAudio();
+    window.addEventListener("pointerdown", kick);
     return () => {
       cancelAnimationFrame(raf);
       document.removeEventListener("visibilitychange", onVis);
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("resize", fit);
+      window.removeEventListener("pointerdown", kick);
     };
   }, []);
 
@@ -528,6 +532,7 @@ export function GameView() {
           onPointerCancel={onUp}
           aria-label="怨霊円陣"
         />
+        {!shopOpen && !gachaOpen && !settingsOpen && !codexOpen && <LyricVeil />}
         {(kind === "title" || kind === "fail") && (
           <AuthSlot isPending={isPending} signedIn={!!user} />
         )}
@@ -737,7 +742,8 @@ export function GameView() {
                 {ITEMS.map((it) => {
                   const left = g.itemT[it.id] ?? 0;
                   const on = left > 0;
-                  const afford = g.coins >= it.price;
+                  const price = itemPrice(it.price, g.itemBuys[it.id] ?? 0);
+                  const afford = g.coins >= price;
                   const peek = g.itemTap !== "now" && slipPeek === it.id;
                   return (
                     <button
@@ -763,7 +769,7 @@ export function GameView() {
                       }}
                     >
                       <b>{it.name}</b>
-                      <small>{on ? `${Math.ceil(left)}秒` : `${it.price}両`}</small>
+                      <small>{on ? `${Math.ceil(left)}秒` : `${price}両`}</small>
                     </button>
                   );
                 })}
@@ -943,6 +949,77 @@ export function GameView() {
       </div>
     </div>
   );
+}
+
+function LyricVeil() {
+  const [line, setLine] = useState("");
+  useEffect(() => {
+    let raf = 0;
+    const tick = () => {
+      const next = lyricAt(audio.themeTime());
+      setLine((cur) => (cur === next ? cur : next));
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+  if (!line) return null;
+  return (
+    <div className="lyric-veil" aria-hidden>
+      <p>{line}</p>
+    </div>
+  );
+}
+
+const THEME_LYRICS: Array<{ t: number; line: string }> = [
+  { t: 16, line: "畳の上で指でなぞるは" },
+  { t: 19.5, line: "解ける檻がまた結び" },
+  { t: 23, line: "直す　赤の裏地に月が落ちてる" },
+  { t: 27, line: "笑った" },
+  { t: 30, line: "ままの秘密が揺れる" },
+  { t: 34, line: "あの女をゴールさせない" },
+  { t: 38, line: "ために武器を振り上げろ" },
+  { t: 42, line: "息を" },
+  { t: 45, line: "潜めて足音を消して" },
+  { t: 48.5, line: "その背中まであと少し" },
+  { t: 52, line: "だろう" },
+  { t: 60, line: "" },
+  { t: 76, line: "指先一つで運命を" },
+  { t: 84, line: "痛みを潜めて足音を消して" },
+  { t: 93, line: "その" },
+  { t: 100, line: "" },
+  { t: 117, line: "背中まであと少しだろう" },
+  { t: 120.5, line: "指先一つで運命を" },
+  { t: 124, line: "裂いて　今夜だけはまだ終わらせない" },
+  { t: 133, line: "まだ生かせない　まだ生かせない" },
+  { t: 136, line: "赤のうなじが燃えてる" },
+  { t: 138.2, line: "まだ生かせない　まだ生かせない" },
+  { t: 140, line: "この手で闇を止める" },
+  { t: 148, line: "" },
+  { t: 163, line: "花びらみたいに散るのが罪なら" },
+  { t: 166.5, line: "この胸ごと盾にして" },
+  { t: 170, line: "やる　月が見ている" },
+  { t: 177, line: "隠しきれない名前も傷も抱えて進め" },
+  { t: 185, line: "まだ行かせない　まだ行かせない" },
+  { t: 187.5, line: "赤のうなじが燃えてる" },
+  { t: 190, line: "まだ行かせない　まだ行かせない" },
+  { t: 192, line: "この手で闇を問う" },
+  { t: 194.5, line: "まだ行かせない　まだ行かせない" },
+  { t: 196.5, line: "朝が来るまで守る" },
+  { t: 199, line: "まだ行かせない　まだ行かせない" },
+  { t: 202, line: "あの葉には渡させない" },
+  { t: 208, line: "ああ…" },
+  { t: 220, line: "" },
+];
+
+function lyricAt(t: number): string {
+  if (t < 0) return "";
+  let line = "";
+  for (const row of THEME_LYRICS) {
+    if (t < row.t) break;
+    line = row.line;
+  }
+  return line;
 }
 
 function overlayOf(g: Game): OverlayKind {

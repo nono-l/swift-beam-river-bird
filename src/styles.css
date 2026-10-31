@@ -75,6 +75,27 @@
   display:block
 }
 
+.lyric-veil {
+  z-index:5;
+  pointer-events:none;
+  text-align:center;
+  padding:0 28px;
+  position:absolute;
+  right:0;
+  bottom:22%;
+  left:0
+}
+
+.lyric-veil p {
+  color:#f4e8dc8c;
+  text-shadow:0 1px 10px #1c1510;
+  letter-spacing:.12em;
+  margin:0;
+  font-size:.95rem;
+  font-weight:700;
+  line-height:1.6
+}
+
 .debug-toggle {
   z-index:40;
   color:#e8dcc8;
@@ -857,6 +878,10 @@
   min-height:0;
   max-height:100%;
   margin-inline:auto;
+  padding:12px;
+  border:1px solid #e8c15a47;
+  border-radius:18px;
+  background:#1c1510f2;
   overflow:hidden
 }
 
@@ -886,7 +911,7 @@
   touch-action:pan-y;
   flex-direction:column;
   flex:auto;
-  align-items:center;
+  align-items:stretch;
   gap:10px;
   width:100%;
   min-height:0;
@@ -907,6 +932,7 @@
   background:#2e271d;
   align-items:center;
   gap:8px;
+  width:100%;
   display:flex
 }
 
@@ -939,12 +965,14 @@
 .shop-copy .nm {
   font-family:var(--font-display);
   color:var(--color-gold);
-  letter-spacing:.08em
+  letter-spacing:.08em;
+  white-space:nowrap
 }
 
 .shop-copy .lv,.shop-copy .st {
   color:var(--color-paper-dim);
-  font-size:.78rem
+  font-size:.78rem;
+  line-height:1.45
 }
 
 .shop-buy {
