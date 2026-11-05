@@ -107,3 +107,43 @@ export const putCloudSave = createServerFn({ method: "POST" })
     `;
     return true;
   });
+
+/** 引継ぎだけ。所持両も大きい方を残す。ブラウザから来た数は渡さない。 */
+export async function mergeCloudSave(userId: string, data: CloudMeta): Promise<void> {
+  const shop = readShop(data.shop);
+  const sql = await getSql();
+  const prev = await sql<{ guest_bank: number; guest_stock: unknown; items: unknown }>`
+    select guest_bank, guest_stock, items from player_saves where user_id = ${userId} limit 1
+  `;
+  const row = prev[0];
+  const stock = mergeGuestStock(
+    row ? readGuestStock(row.guest_stock, row.guest_bank) : {},
+    readGuestStock(data.guestStock),
+  );
+  const growth = mergeGuestGrowth(readGuestGrowth(row?.items), readGuestGrowth(data.guestGrowth));
+  const shion = stock.shion ?? 0;
+  await sql`
+    insert into player_saves (user_id, high_wave, bank, mark_bank, guest_bank, guest_stock, items, shop_atk, shop_spd, shop_coin, shop_okiku, shop_path, shop_base, shop_seed, shop_back, shop_arms, shop_slow, shop_thin, shop_auto, updated_at)
+    values (${userId}, ${data.highWave}, ${data.bank}, ${data.markBank}, ${shion}, ${JSON.stringify(stock)}::jsonb, ${JSON.stringify(growth)}::jsonb, ${shop.atk}, ${shop.spd}, ${shop.coin}, ${shop.okiku}, ${shop.path}, ${shop.base}, ${shop.seed}, ${shop.back}, ${shop.arms}, ${shop.slow}, ${shop.thin}, ${shop.auto}, now())
+    on conflict (user_id) do update set
+      high_wave = greatest(player_saves.high_wave, excluded.high_wave),
+      bank = greatest(player_saves.bank, excluded.bank),
+      mark_bank = greatest(player_saves.mark_bank, excluded.mark_bank),
+      guest_bank = greatest(player_saves.guest_bank, excluded.guest_bank),
+      guest_stock = excluded.guest_stock,
+      items = excluded.items,
+      shop_atk = greatest(player_saves.shop_atk, excluded.shop_atk),
+      shop_spd = greatest(player_saves.shop_spd, excluded.shop_spd),
+      shop_coin = greatest(player_saves.shop_coin, excluded.shop_coin),
+      shop_okiku = greatest(player_saves.shop_okiku, excluded.shop_okiku),
+      shop_path = greatest(player_saves.shop_path, excluded.shop_path),
+      shop_base = greatest(player_saves.shop_base, excluded.shop_base),
+      shop_seed = greatest(player_saves.shop_seed, excluded.shop_seed),
+      shop_back = greatest(player_saves.shop_back, excluded.shop_back),
+      shop_arms = greatest(player_saves.shop_arms, excluded.shop_arms),
+      shop_slow = greatest(player_saves.shop_slow, excluded.shop_slow),
+      shop_thin = greatest(player_saves.shop_thin, excluded.shop_thin),
+      shop_auto = greatest(player_saves.shop_auto, excluded.shop_auto),
+      updated_at = now()
+  `;
+}

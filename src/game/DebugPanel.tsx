@@ -7,7 +7,9 @@ import type { Game, HeroId } from "./types";
 import type { DebugField } from "./sim";
 import { debugNudge, debugOpenBuff, debugOpenRoute, debugOpenWeapon, debugSummon, debugUnlockAll } from "./sim";
 import { nudgeGuest } from "./guests";
-import { setAutoMerge, setDebugMode, setItemTap, setPlayStyle, setVoiceOn } from "./persist";
+import { setAutoMerge, setDebugMode, setItemTap, setPlayStyle, setVoiceOn, mergeMeta, saveMeta, snapshotMeta } from "./persist";
+import { applyMeta } from "./sim";
+import { pullPreviousSave } from "@/server/migrate";
 import { startVoice, stopVoice, voiceStatus } from "./mic";
 import { GUEST_KINDS, HEROES, ROSTER_IDS, displayLevel, isGuest, roleLabel } from "./data";
 
@@ -147,6 +149,7 @@ export function SettingsPanel({
 }) {
   const [tab, setTab] = useState<SettingsTab>("play");
   const [debugTab, setDebugTab] = useState<DebugTab>("fight");
+  const [carryNote, setCarryNote] = useState("");
   const bump = (id: DebugField, dir: 1 | -1) => {
     debugNudge(g, id, dir);
     onChange();
@@ -296,6 +299,31 @@ export function SettingsPanel({
               <button type="button" className="ghost-btn stagger" onClick={onReplayTutorial}>
                 最初から見る
               </button>
+              <p className="shop-hint stagger">前のドメインから引継ぐ</p>
+              <button
+                type="button"
+                className="ghost-btn stagger"
+                onClick={() => {
+                  setCarryNote("聞いています");
+                  void pullPreviousSave()
+                    .then((res) => {
+                      if (!res.ok) {
+                        setCarryNote(res.reason);
+                        return;
+                      }
+                      applyMeta(g, mergeMeta(snapshotMeta(g), { version: 2, ...res.save }));
+                      saveMeta(g);
+                      setCarryNote("引継いだ。両と華と店と客神は、大きい方を残した");
+                      onChange();
+                    })
+                    .catch(() => setCarryNote("先に Google で保存してください"));
+                }}
+              >
+                引継ぐ
+              </button>
+              <p className="shop-hint stagger">
+                {carryNote || "今の Google のメールで、前のサーバに一度だけ聞く。貼り付けた数字は使わない。"}
+              </p>
               {g.shop.auto >= 1 && (
                 <>
                   <p className="shop-hint stagger">自動重ね</p>

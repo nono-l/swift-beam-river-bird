@@ -1,7 +1,7 @@
 /* このファイルは scripts/page-dates.mjs が書く。手で直さない。 */
 export const PAGE_DATES: Record<string, { modified: string; published?: string }> = {
   "/": {
-    "modified": "2026-10-20T01:22:55+09:00"
+    "modified": "2026-11-06T01:23:05+09:00"
   },
   "/how": {
     "modified": "2026-10-06T18:22:26+09:00"
@@ -16,8 +16,8 @@ export const PAGE_DATES: Record<string, { modified: string; published?: string }
 
 export const PAGE_DATE_LEDGER: Record<string, { modified: string; hash: string; published?: string }> = {
   "/": {
-    "modified": "2026-10-20T01:22:55+09:00",
-    "hash": "215ec3d32be83956adf8fed6bcb9b5bdb225caa3b15f7b1fc2413d1a1784db38"
+    "modified": "2026-11-06T01:23:05+09:00",
+    "hash": "919e9ec54de95ed918763c9001f82d7e73d06832fa80459ef23bbe4a5eaf5b23"
   },
   "/how": {
     "modified": "2026-10-06T18:22:26+09:00",

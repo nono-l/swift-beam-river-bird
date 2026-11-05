@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as HowRouteImport } from './routes/how'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as ApiMigrateRouteImport } from './routes/api/migrate'
 import { Route as ApiRtcRouteImport } from './routes/api/rtc'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
@@ -36,6 +37,11 @@ const TermsRoute = TermsRouteImport.update({
   path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiMigrateRoute = ApiMigrateRouteImport.update({
+  id: '/api/migrate',
+  path: '/api/migrate',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiRtcRoute = ApiRtcRouteImport.update({
   id: '/api/rtc',
   path: '/api/rtc',
@@ -52,6 +58,7 @@ export interface FileRoutesByFullPath {
   '/how': typeof HowRoute
   '/login': typeof LoginRoute
   '/terms': typeof TermsRoute
+  '/api/migrate': typeof ApiMigrateRoute
   '/api/rtc': typeof ApiRtcRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -60,6 +67,7 @@ export interface FileRoutesByTo {
   '/how': typeof HowRoute
   '/login': typeof LoginRoute
   '/terms': typeof TermsRoute
+  '/api/migrate': typeof ApiMigrateRoute
   '/api/rtc': typeof ApiRtcRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
@@ -69,16 +77,38 @@ export interface FileRoutesById {
   '/how': typeof HowRoute
   '/login': typeof LoginRoute
   '/terms': typeof TermsRoute
+  '/api/migrate': typeof ApiMigrateRoute
   '/api/rtc': typeof ApiRtcRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/how' | '/login' | '/terms' | '/api/rtc' | '/api/auth/$'
+  fullPaths:
+    | '/'
+    | '/how'
+    | '/login'
+    | '/terms'
+    | '/api/migrate'
+    | '/api/rtc'
+    | '/api/auth/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/how' | '/login' | '/terms' | '/api/rtc' | '/api/auth/$'
+  to:
+    | '/'
+    | '/how'
+    | '/login'
+    | '/terms'
+    | '/api/migrate'
+    | '/api/rtc'
+    | '/api/auth/$'
   id:
-    '__root__' | '/' | '/how' | '/login' | '/terms' | '/api/rtc' | '/api/auth/$'
+    | '__root__'
+    | '/'
+    | '/how'
+    | '/login'
+    | '/terms'
+    | '/api/migrate'
+    | '/api/rtc'
+    | '/api/auth/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -86,6 +116,7 @@ export interface RootRouteChildren {
   HowRoute: typeof HowRoute
   LoginRoute: typeof LoginRoute
   TermsRoute: typeof TermsRoute
+  ApiMigrateRoute: typeof ApiMigrateRoute
   ApiRtcRoute: typeof ApiRtcRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
 }
@@ -120,6 +151,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/migrate': {
+      id: '/api/migrate'
+      path: '/api/migrate'
+      fullPath: '/api/migrate'
+      preLoaderRoute: typeof ApiMigrateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/rtc': {
       id: '/api/rtc'
       path: '/api/rtc'
@@ -142,6 +180,7 @@ const rootRouteChildren: RootRouteChildren = {
   HowRoute: HowRoute,
   LoginRoute: LoginRoute,
   TermsRoute: TermsRoute,
+  ApiMigrateRoute: ApiMigrateRoute,
   ApiRtcRoute: ApiRtcRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
 }
